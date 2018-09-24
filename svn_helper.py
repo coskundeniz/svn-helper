@@ -68,7 +68,7 @@ def diff():
     for index, file_path in output:
         if index in selected_indexes:
 
-            diff_command = "svn diff %s" % file_path.strip("MDA! ")
+            diff_command = "svn diff %s" % file_path.strip("MDA!+ ")
             diff_result = subprocess.Popen(diff_command, shell=True, stdout=subprocess.PIPE)
 
             print diff_result.communicate()[0]
@@ -90,7 +90,7 @@ def revision_diff(first_revision, second_revision):
         if index in selected_indexes:
 
             revision_diff_command = "svn diff -r %s:%s %s" % (first_revision, second_revision,
-                                                              file_path.strip("MD! "))
+                                                              file_path.strip("MD!+ "))
             diff_result = subprocess.Popen(revision_diff_command, shell=True, stdout=subprocess.PIPE)
 
             print diff_result.communicate()[0]
@@ -106,7 +106,7 @@ def commit():
     # determine files to commit
     for index, file_path in output:
         if index in selected_indexes:
-            commit_list.append(file_path.strip("MDA! "))
+            commit_list.append(file_path.strip("MDA!+ "))
 
     # commit selected files
     commit_command = "svn commit %s" % (" ".join(file_to_commit for file_to_commit in commit_list))
@@ -120,7 +120,7 @@ def log():
 
     for index, file_path in output:
         if index in selected_indexes:
-            file_for_log = file_path.strip("MD! ")
+            file_for_log = file_path.strip("MD!+ ")
 
             log_command = "svn log %s" % file_for_log
             log_result = subprocess.Popen(log_command, shell=True, stdout=subprocess.PIPE)
@@ -187,7 +187,7 @@ def blame():
     # determine files to add
     for index, file_path in output:
         if index in selected_indexes:
-            blame_list.append(file_path.strip("MD! "))
+            blame_list.append(file_path.strip("MD!+ "))
 
     # add selected files to svn
     blame_command = "svn blame %s" % (" ".join(file_to_blame for file_to_blame in blame_list))
@@ -246,3 +246,4 @@ if __name__ == '__main__':
         blame()
     else:
         print "Invalid argument!"
+        
