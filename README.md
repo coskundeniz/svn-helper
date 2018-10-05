@@ -13,7 +13,7 @@ Usage
 Go to the working copy and run as following
 
 ```python
-python svn_helper.py [option]
+python3 svn_helper.py [option]
 ```
 
 Available options

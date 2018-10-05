@@ -1,8 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+import sys
+
+if sys.version_info.major < 3:
+    print("Use python3 to run the script!")
+    sys.exit(1)
 
 import os
-import sys
 import subprocess
 
 
@@ -26,15 +28,15 @@ def get_requested_indexes(is_quiet):
 
     # get selected indexes from user
     if output:
-        selected_indexes = raw_input("\nEnter requested indexes: ")
+        selected_indexes = input("\nEnter requested indexes: ")
     else:
-        print "\nThere is no changes to show\n"
+        print("\nThere is no changes to show\n")
         return ([], output)
 
     try:
         indexes = [int(item) for item in selected_indexes.strip().split()]
     except ValueError:
-        print "Invalid index!"
+        print("Invalid index!")
         sys.exit(0)
 
     return (indexes, output)
@@ -56,7 +58,7 @@ def status(is_quiet):
 
     status_result = subprocess.Popen(status_command, shell=True, stdout=subprocess.PIPE)
 
-    return status_result.communicate()[0]
+    return status_result.communicate()[0].decode("utf-8")
 
 
 def diff():
@@ -71,7 +73,7 @@ def diff():
             diff_command = "svn diff %s" % file_path.strip("MDA!+ ")
             diff_result = subprocess.Popen(diff_command, shell=True, stdout=subprocess.PIPE)
 
-            print diff_result.communicate()[0]
+            show_result(diff_result.communicate()[0])
 
 
 def revision_diff(first_revision, second_revision):
@@ -83,7 +85,7 @@ def revision_diff(first_revision, second_revision):
     :param second_revision: second revision number for diff
     """
 
-    print "\nSelect files to see revision diff"
+    print("\nSelect files to see revision diff")
     selected_indexes, output = get_requested_indexes(True)
 
     for index, file_path in output:
@@ -93,7 +95,7 @@ def revision_diff(first_revision, second_revision):
                                                               file_path.strip("MD!+ "))
             diff_result = subprocess.Popen(revision_diff_command, shell=True, stdout=subprocess.PIPE)
 
-            print diff_result.communicate()[0]
+            show_result(diff_result.communicate()[0])
 
 
 def commit():
@@ -125,7 +127,7 @@ def log():
             log_command = "svn log %s" % file_for_log
             log_result = subprocess.Popen(log_command, shell=True, stdout=subprocess.PIPE)
 
-            print log_result.communicate()[0]
+            show_result(log_result.communicate()[0])
 
 
 def directory_log():
@@ -139,16 +141,16 @@ def directory_log():
             directory_list.append(name)
 
     # show indexed directory list
-    indexed_output = zip(range(1, len(directory_list)+1), directory_list)
+    indexed_output = list(zip(list(range(1, len(directory_list)+1)), directory_list))
     show_indexed_result(indexed_output)
 
     # get selected indexes from user
-    indexes = raw_input("\nEnter requested indexes: ")
+    indexes = input("\nEnter requested indexes: ")
 
     try:
         selected_indexes = [int(item) for item in indexes.strip().split()]
     except ValueError:
-        print "Invalid index!"
+        print("Invalid index!")
         sys.exit(0)
 
     # run log command for selected directory/directories
@@ -157,7 +159,7 @@ def directory_log():
             log_command = "svn log %s" % folder_path
             log_result = subprocess.Popen(log_command, shell=True, stdout=subprocess.PIPE)
 
-            print log_result.communicate()[0]
+            show_result(log_result.communicate()[0])
 
 
 def add():
@@ -203,7 +205,7 @@ def index_command_output(output):
     :returns: indexed output
     """
 
-    indexed_output = zip(range(1, len(output)+1), output.split("\n"))
+    indexed_output = list(zip(list(range(1, len(output)+1)), output.split("\n")))
 
     return indexed_output[:-1]
 
@@ -216,7 +218,17 @@ def show_indexed_result(output):
     """
 
     for index, filepath in output:
-        print "%2s -- %s" % (index, filepath)
+        print("%2s -- %s" % (index, filepath))
+
+
+def show_result(result):
+    """Show result of command run
+    
+    :type result: string
+    :param result: result of svn command run on selected files/folders
+    """
+
+    print(result.decode("utf-8"))
 
 
 if __name__ == '__main__':
@@ -227,12 +239,12 @@ if __name__ == '__main__':
     args = sys.argv
 
     if "-s" in args:
-        print status(False)
+        print(status(False))
     elif "-d" in args:
         diff()
     elif "-dr" in args:
-        first_revision = raw_input("Enter first revision:  ")
-        second_revision = raw_input("Enter second revision: ")
+        first_revision = input("Enter first revision:  ")
+        second_revision = input("Enter second revision: ")
         revision_diff(first_revision, second_revision)
     elif "-c" in args:
         commit()
@@ -245,5 +257,5 @@ if __name__ == '__main__':
     elif "-b" in args:
         blame()
     else:
-        print "Invalid argument!"
+        print("Invalid argument!")
         
