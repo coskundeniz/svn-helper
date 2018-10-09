@@ -208,7 +208,8 @@ def index_command_output(output):
 
 def backup_files(dirname):
     """Backup changed files to given directory. New directory will be
-    created in the home directory.
+    created in the home directory. Files will be prefixed with the
+    name of the immediate parent folder.
 
     :type dirname: string
     :param dirname: name of backup directory
@@ -217,7 +218,11 @@ def backup_files(dirname):
     selected_indexes, output = get_requested_indexes(True)
     backup_dir = os.path.join(os.path.expanduser("~"), dirname)
 
-    subprocess.call("mkdir %s" % backup_dir, shell=True)
+    if not os.path.exists(backup_dir):
+        print("Creating {}...".format(backup_dir))
+        subprocess.call("mkdir %s" % backup_dir, shell=True)
+    else:
+        print("Backup directory already exists! Continue to backup...")
 
     copy_ok = False
 
