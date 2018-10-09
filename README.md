@@ -24,11 +24,12 @@ Available options
 * **l**: svn log
 * **dl**: directory log
 * **a**: svn add
-* **b** svn blame
+* **b**: svn blame
+* **bc**: backup changed files
 
 
 This can be shortened with aliases defined in bashrc file like
 
 ```bash
-alias sd="python svn_helper.py -d"
+alias sd="python3 svn_helper.py -d"
 ```

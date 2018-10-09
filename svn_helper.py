@@ -73,7 +73,7 @@ def diff():
             diff_command = "svn diff %s" % file_path.strip("MDA!+ ")
             diff_result = subprocess.Popen(diff_command, shell=True, stdout=subprocess.PIPE)
 
-            show_result(diff_result.communicate()[0])
+            show_command_output(diff_result.communicate()[0])
 
 
 def revision_diff(first_revision, second_revision):
@@ -95,7 +95,7 @@ def revision_diff(first_revision, second_revision):
                                                               file_path.strip("MD!+ "))
             diff_result = subprocess.Popen(revision_diff_command, shell=True, stdout=subprocess.PIPE)
 
-            show_result(diff_result.communicate()[0])
+            show_command_output(diff_result.communicate()[0])
 
 
 def commit():
@@ -125,9 +125,7 @@ def log():
             file_for_log = file_path.strip("MD!+ ")
 
             log_command = "svn log %s" % file_for_log
-            log_result = subprocess.Popen(log_command, shell=True, stdout=subprocess.PIPE)
-
-            show_result(log_result.communicate()[0])
+            os.system(log_command)
 
 
 def directory_log():
@@ -141,7 +139,7 @@ def directory_log():
             directory_list.append(name)
 
     # show indexed directory list
-    indexed_output = list(zip(list(range(1, len(directory_list)+1)), directory_list))
+    indexed_output = list(zip(range(1, len(directory_list)+1), directory_list))
     show_indexed_result(indexed_output)
 
     # get selected indexes from user
@@ -157,9 +155,7 @@ def directory_log():
     for index, folder_path in indexed_output:
         if index in selected_indexes:
             log_command = "svn log %s" % folder_path
-            log_result = subprocess.Popen(log_command, shell=True, stdout=subprocess.PIPE)
-
-            show_result(log_result.communicate()[0])
+            os.system(log_command)
 
 
 def add():
@@ -205,9 +201,44 @@ def index_command_output(output):
     :returns: indexed output
     """
 
-    indexed_output = list(zip(list(range(1, len(output)+1)), output.split("\n")))
+    indexed_output = list(zip(range(1, len(output)+1), output.split("\n")))
 
     return indexed_output[:-1]
+
+
+def backup_files(dirname):
+    """Backup changed files to given directory. New directory will be
+    created in the home directory.
+
+    :type dirname: string
+    :param dirname: name of backup directory
+    """
+
+    selected_indexes, output = get_requested_indexes(True)
+    backup_dir = os.path.join(os.path.expanduser("~"), dirname)
+
+    subprocess.call("mkdir %s" % backup_dir, shell=True)
+
+    copy_ok = False
+
+    for index, file_path in output:
+        if index in selected_indexes:
+            filename = os.path.join(os.getcwd(), file_path.strip("MDA!+ "))
+
+            immediate_parent_dirname = os.path.dirname(filename).split(os.path.sep)[-1]
+            new_filename = immediate_parent_dirname + "__" + os.path.basename(filename)
+
+            print("Copying {}...".format(filename))
+            subprocess.call("cp %s %s" % (filename, os.path.join(backup_dir, new_filename)), shell=True)
+
+            copy_ok = True
+
+    if copy_ok:
+        print("All files copied to {}".format(backup_dir))
+    else:
+        print("Failed to copy files!")
+        if os.path.exists(backup_dir):
+            subprocess.call("rm -rf %s" % backup_dir, shell=True)
 
 
 def show_indexed_result(output):
@@ -221,7 +252,7 @@ def show_indexed_result(output):
         print("%2s -- %s" % (index, filepath))
 
 
-def show_result(result):
+def show_command_output(result):
     """Show result of command run
     
     :type result: string
@@ -256,6 +287,10 @@ if __name__ == '__main__':
         add()
     elif "-b" in args:
         blame()
+    elif "-bc" in args:
+        backup_dir_name = input("Enter name of backup directory: ")
+        print("Getting changed files...")
+        backup_files(backup_dir_name)
     else:
         print("Invalid argument!")
         
