@@ -4,6 +4,7 @@ if sys.version_info.major < 3:
     print("Use python3 to run the script!")
     sys.exit(1)
 
+import datetime
 import os
 import subprocess
 
@@ -246,6 +247,37 @@ def backup_files(dirname):
             subprocess.call("rm -rf %s" % backup_dir, shell=True)
 
 
+def create_patch():
+    """Create a patch file from current status of working copy.
+    File will be created under the home directory with the following format
+
+    <working copy directory name>_<date>.patch
+    """
+    
+    date = datetime.datetime.now().strftime("%b-%d-%Y-%H-%M-%S")
+    filename = os.path.basename(os.getcwd()) + "_" + date + ".patch"
+    patch_file = os.path.join(os.path.expanduser("~"), filename)
+
+    os.system("svn diff > %s" % patch_file)
+
+    print("Created {}".format(patch_file))
+
+
+def apply_patch(filename):
+    """Apply the given patch file.
+    
+    :type filename: string
+    :param filename: name of patch file
+    """
+
+    patch_filepath = os.path.join(os.path.expanduser("~"), filename)
+    if not os.path.exists(patch_filepath):
+        print("Patch file not found!")
+        sys.exit(1)
+
+    os.system("svn patch %s" % patch_filepath)
+
+
 def show_indexed_result(output):
     """Show indexed output
 
@@ -296,6 +328,11 @@ if __name__ == '__main__':
         backup_dir_name = input("Enter name of backup directory: ")
         print("Getting changed files...")
         backup_files(backup_dir_name)
+    elif "-cp" in args:
+        create_patch()
+    elif "-ap" in args:
+        patch_file = input("Enter name of patch file: ")
+        apply_patch(patch_file)
     else:
         print("Invalid argument!")
         

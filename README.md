@@ -26,6 +26,8 @@ Available options
 * **a**: svn add
 * **b**: svn blame
 * **bc**: backup changed files
+* **cp**: create patch file
+* **ap**: apply patch file
 
 
 This can be shortened with aliases defined in bashrc file like
