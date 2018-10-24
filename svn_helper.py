@@ -35,12 +35,33 @@ def get_requested_indexes(is_quiet):
         return ([], output)
 
     try:
-        indexes = [int(item) for item in selected_indexes.strip().split()]
+        indexes = []
+
+        for entry in selected_indexes.strip().split():
+            if "-" in entry:
+                indexes.extend(map(int, expand_range(entry)))
+            else:
+                indexes.append(int(entry))
     except ValueError:
         print("Invalid index!")
-        sys.exit(0)
+        sys.exit(1)
 
     return (indexes, output)
+
+
+def expand_range(entry):
+    """Expand the given range
+
+    :type entry: string
+    :param entry: index range in number1-number2 format
+    :rtype: list
+    :returns: list of values from number1 to number2 included
+    """
+
+    start = int(entry.split("-")[0])
+    end = int(entry.split("-")[-1]) + 1
+
+    return range(start, end)
 
 
 def status(is_quiet):
@@ -150,7 +171,7 @@ def directory_log():
         selected_indexes = [int(item) for item in indexes.strip().split()]
     except ValueError:
         print("Invalid index!")
-        sys.exit(0)
+        sys.exit(1)
 
     # run log command for selected directory/directories
     for index, folder_path in indexed_output:
