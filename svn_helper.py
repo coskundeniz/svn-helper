@@ -229,9 +229,9 @@ def index_command_output(output):
 
 
 def backup_files(dirname):
-    """Backup changed files to given directory. New directory will be
-    created in the home directory. Files will be prefixed with the
-    name of the immediate parent folder.
+    """Backup changed files/directories to given directory.
+    New directory will be created in the home directory.
+    Files will be prefixed with the name of the immediate parent folder.
 
     :type dirname: string
     :param dirname: name of backup directory
@@ -250,13 +250,16 @@ def backup_files(dirname):
 
     for index, file_path in output:
         if index in selected_indexes:
-            filename = os.path.join(os.getcwd(), file_path.split()[-1])
+            path = os.path.join(os.getcwd(), file_path.split()[-1])
 
-            immediate_parent_dirname = os.path.dirname(filename).split(os.path.sep)[-1]
-            new_filename = immediate_parent_dirname + "__" + os.path.basename(filename)
+            immediate_parent_dirname = os.path.dirname(path).split(os.path.sep)[-1]
+            new_filename = immediate_parent_dirname + "__" + os.path.basename(path)
 
-            print("Copying {}...".format(filename))
-            subprocess.call("cp %s %s" % (filename, os.path.join(backup_dir, new_filename)), shell=True)
+            print("Copying {}...".format(path))
+            subprocess.call("cp %s %s %s" % ("-r" if os.path.isdir(path) else "",
+                                            path,
+                                            os.path.join(backup_dir, new_filename)),
+                                            shell=True)
 
             copy_ok = True
 

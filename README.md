@@ -25,7 +25,7 @@ Available options
 * **dl**: directory log
 * **a**: svn add
 * **b**: svn blame
-* **bc**: backup changed files
+* **bc**: backup changed files/folders
 * **cp**: create patch file
 * **ap**: apply patch file
 
